@@ -374,11 +374,66 @@
         to { opacity: 0; transform: scale(0.5) translateY(20px); }
     }
 
+    /* This class will be added only when the secret is found */
+.secret-active {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#literary-hint {
+    visibility: hidden;
+    min-width: 320px;
+    background-color: rgba(255, 255, 255, 0.98);
+    color: #d81b60;
+    text-align: center;
+    border: 2px solid #ffc0cb;
+    border-radius: 15px;
+    padding: 20px;
+    position: fixed;
+    z-index: 10001;
+    left: 50%;
+    bottom: 160px;
+    transform: translateX(-50%);
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.4em;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    line-height: 1.4;
+}
+
+#literary-hint.show {
+    visibility: visible;
+    animation: slideUpFade 0.6s ease-out, slideDownFade 0.6s ease-in 5.4s forwards;
+}
+
+@keyframes slideUpFade { from {bottom: 0; opacity: 0;} to {bottom: 160px; opacity: 1;} }
+@keyframes slideDownFade { from {bottom: 160px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+@keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 150px; opacity: 1;} }
+@keyframes fadeout { from {bottom: 150px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+.cake:hover {
+    cursor: pointer;
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+    transition: filter 0.3s ease;
+}
 
   </style>
 </head>
 
 <body>
+
+  <!-- <div id="literary-toast">
+    Psst... Marjorie, a story is never just what is on the page. <br>
+    Some secrets require a persistent touch on the cake. 🎂✨
+</div> -->
+
+<div id="literary-hint" id="hintBox">
+    "Marj, some stories require a <strong>persistent touch</strong> on the cake... <br> 
+    or perhaps just typing a <strong>familiar name</strong> (like what you call me) might unlock a hidden chapter."
+</div>
+
   <div class="loading"></div>
   <img src="assets/images/her/her-1.jpeg" class="album-photo album-left-1">
   <img src="assets/images/her/her-2.jpeg" class="album-photo album-left-2">
@@ -394,26 +449,13 @@
 
 
 
- <div id="secret-egg" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:10000; color:white; padding:20px; text-align:center; overflow-y: auto; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-    
+ <div id="secret-egg" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:10000; color:white; padding:20px; text-align:center; overflow-y: auto;">
     <h1 style="font-family:'Dancing Script'; color: #ffd700; font-size: 3em; margin-bottom: 10px;">You found it! ❤️</h1>
-    
     <p style="font-family: 'Lato', sans-serif; font-size: 1.2em; margin-bottom: 20px; max-width: 600px;">
         Marj, this is our secret space. I just wanted to tell you...
     </p>
-    
-    <img src="assets/images/her/us.jpg" alt="Our Special Memory" style="
-        /* width: 25vw;             Takes 60% of the viewport WIDTH (laptop screen) */
-        height: 70vh;
-        /* max-width: 800px;       Puts a max limit on very large screens */
-        /* height: auto;           Maintains aspect ratio */
-        border-radius: 30px;    /* Rounded border */
-        border: 5px solid white; /* Optional: adds a nice white border */
-        box-shadow: 0 10px 30px rgba(255,105,180,0.3); /* Optional: soft glow */
-        margin-bottom: 30px;    /* Spacing below the image */
-    ">
-    
-    <button class="btn" style="background: transparent; border: 1px solid white; color: white;" onclick="$('#secret-egg').fadeOut()">Close</button>
+    <img src="assets/images/her/us.jpg" alt="Our Special Memory" style="height: 70vh; border-radius: 30px; border: 5px solid white; box-shadow: 0 10px 30px rgba(255,105,180,0.3); margin-bottom: 30px;">
+    <button class="btn" style="background: transparent; border: 1px solid white; color: white;" onclick="closeSecret()">Close</button>
 </div>
   
 
@@ -551,15 +593,61 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-8SQ2H9J48M"></script>
 <script>
 
+// let cakeClicks = 0;
+// $('.cake').on('click', function() {
+//     cakeClicks++;
+//     if (cakeClicks === 5) {
+//         playSound('pop'); // Using your existing sound helper
+//         $('#secret-egg').fadeIn();
+//         cakeClicks = 0; // Reset
+//     }
+// });
+
+
+// Function for the 5-click cake trigger
+
+// Function to trigger the hint
+function showHint() {
+    const hint = document.getElementById("literary-hint");
+    if (!hint.classList.contains("show")) { // Only trigger if not already showing
+        hint.classList.add("show");
+        
+        // Remove the class after 6 seconds (plus a small buffer)
+        setTimeout(function() { 
+            hint.classList.remove("show"); 
+        }, 6500); 
+    }
+}
+
+$(document).ready(function() {
+    // 1. The 3-Minute Auto-Nudge
+    // 3 minutes = 3 * 60 * 1000 = 180000ms
+    setTimeout(showHint, 180000);
+
+    // 2. The Manual Trigger (Light the Candle)
+    $('#light_candle').on('click', function() {
+        // Trigger 2 seconds after she lights the candle
+        setTimeout(showHint, 2000);
+    });
+});
+
+
 let cakeClicks = 0;
 $('.cake').on('click', function() {
     cakeClicks++;
-    if (cakeClicks === 5) {
-        playSound('pop'); // Using your existing sound helper
-        $('#secret-egg').fadeIn();
-        cakeClicks = 0; // Reset
+    if (cakeClicks === 3) {
+        playSound('pop'); 
+        $('#secret-egg').addClass('secret-active').fadeIn(); // Added class here
+        cakeClicks = 0; 
     }
 });
+
+// Function to close the secret egg
+function closeSecret() {
+    $('#secret-egg').fadeOut(function() {
+        $(this).removeClass('secret-active'); // Removed class here
+    });
+}
 
 
 
